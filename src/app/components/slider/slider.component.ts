@@ -108,6 +108,14 @@ export class SliderComponent implements OnInit, OnChanges {
     this.movies = this.sliderZero.concat(this.movies).concat(this.sliderForth);
   }
 
+  infiniteLoop() {
+    this.transform = `translate3d(${this.XState -
+      this.OneSliderLength * this.sliderState}%, 0px, 0px)`;
+    // transition 없이 위치만 이동
+    this.transition = `none`;
+    // clone 된 후 default 바꾸기
+    this.sliderPosition = this.XState - this.OneSliderLength * this.sliderState;
+  }
   prev() {
     this.transform = `translate3d(${this.sliderPosition +
       this.OneSliderLength}%, 0px, 0px)`;
@@ -115,47 +123,41 @@ export class SliderComponent implements OnInit, OnChanges {
     this.sliderPosition = this.sliderPosition + this.OneSliderLength;
 
     this.sliderState--;
+    // 맨 처음일 때 맨 뒤로 움직이기
     if (this.sliderState === 0) {
       this.sliderState = this.tabLength;
 
       setTimeout(() => {
-        this.transform = `translate3d(${this.XState -
-          this.OneSliderLength * this.sliderState}%, 0px, 0px)`;
-        this.transition = `none`;
-        this.sliderPosition =
-          this.XState - this.OneSliderLength * this.sliderState;
+        this.infiniteLoop();
       }, 750);
     }
   }
 
   next() {
+    // 현재 슬라이더
     this.sliderState++;
+
+    // 현재 위치에서 translate
     this.transform = `translate3d(${this.sliderPosition -
       this.OneSliderLength}%, 0px, 0px)`;
     this.transition = `transform 0.75s ease 0s`;
     this.sliderPosition = this.sliderPosition - this.OneSliderLength;
+
+    // 처음에 한번만 실행
     if (!this.default) {
       setTimeout(() => {
         // movies 뒷부분 clone
         this.moviesClone();
-        this.transform = `translate3d(${this.XState -
-          this.OneSliderLength * this.sliderState}%, 0px, 0px)`;
-        this.transition = `none`;
+        this.infiniteLoop();
         this.default = true;
-        this.sliderPosition =
-          this.XState - this.OneSliderLength * this.sliderState;
       }, 750);
     }
-
+    // 슬라이더가 마지막에 도달했을 때 위치만 이동
     if (this.sliderState === this.tabLength + 1) {
+      // 현재 슬라이더 초기화
       this.sliderState = 1;
-
       setTimeout(() => {
-        this.transform = `translate3d(${this.XState -
-          this.OneSliderLength * this.sliderState}%, 0px, 0px)`;
-        this.transition = `none`;
-        this.sliderPosition =
-          this.XState - this.OneSliderLength * this.sliderState;
+        this.infiniteLoop();
       }, 750);
     }
   }
@@ -194,37 +196,6 @@ export class SliderComponent implements OnInit, OnChanges {
       this.bobup = 0;
       if (!this.isOpen) {
         this.moviesDetail = undefined;
-        // this.moviesDetail = {
-        //   actors: [],
-        //   author: [],
-        //   big_image_path: "",
-        //   can_i_store: false,
-        //   circle_image: "",
-        //   degree: {},
-        //   directors: [],
-        //   feature: [],
-        //   genre: [],
-        //   horizontal_image_path: "",
-        //   id: 0,
-        //   like: 0,
-        //   logo_image_path: "",
-        //   marked: false,
-        //   match_rate: 0,
-        //   name: "",
-        //   production_date: "",
-        //   real_running_time: 0,
-        //   remaining_time: 0,
-        //   running_time: 0,
-        //   sample_video_file: "",
-        //   similar_movies: [],
-        //   synopsis: "",
-        //   to_be_continue: 0,
-        //   total_minute: 0,
-        //   uploaded_date: "",
-        //   vertical_image: "",
-        //   vertical_sample_video_file: "",
-        //   video_file: ""
-        // };
       }
     }, 300);
   }
@@ -299,25 +270,18 @@ export class SliderComponent implements OnInit, OnChanges {
   }
 
   likeMovie(id: number) {
-    // console.log(id);
     this.movieService.likeMovie(id).subscribe(
       ({ response }) => {
         this.moviesDetail.like = response ? 1 : 0;
-        // console.log("like response", response);
-        // console.log("like like", this.moviesDetail.like);
       },
       error => console.error(error)
     );
   }
 
   dislikeMovie(id: number) {
-    // console.log(id);
     this.movieService.dislikeMovie(id).subscribe(
       ({ response }) => {
         this.moviesDetail.like = response ? 2 : 0;
-
-        // console.log("dislike response", response);
-        // console.log("dislike like", this.moviesDetail.like);
       },
       error => console.error(error)
     );

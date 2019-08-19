@@ -18,9 +18,11 @@
   </ng-template>
   <div
     class="slider-container"
-    [style.transform]="transform"
-    [style.transition]="transition"
-  >
+    [ngStyle]="{
+      transform : transform,
+      transition : transition
+    }"
+    >
     <div class="sliderMask showPeek">
       <div class="sliderContent row-with-x-columns">
         <!-- card -->
